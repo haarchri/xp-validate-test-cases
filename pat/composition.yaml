@@ -1,0 +1,37 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: pat.xkarpenters.aws.platform.upbound.io
+  labels:
+    provider: aws
+    function: patch-and-transform
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: aws.platform.upbound.io/v1alpha1
+    kind: XKarpenter
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: crossplane-contrib-function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        patches:
+          test: crank
+        resources:
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: EnvironmentConfig
+              metadata:
+                name: example-environment
+              data:
+                locations:
+                  us: us-east-2
+                  eu: eu-north-1
+                key1: value1
+                key2: value2
+                key3:
+                  - item1
+                  - item2
